@@ -11,6 +11,6 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(readr)
 
-misinfo_d <- read_csv('../data/life-under-lockdown-wave2-extract.csv')
+misinfo_d <- read_csv('../data/life-under-lockdown-wave2-extract.csv') 
 ```
 
