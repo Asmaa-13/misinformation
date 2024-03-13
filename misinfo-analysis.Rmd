@@ -12,8 +12,16 @@ library(dplyr)
 library(readr)
 library(ggplot2)
 
+options(scipen = 999)
+
 misinfo_d <- read_csv('../data/life-under-lockdown-wave2-extract.csv') 
 ```
+# Assosciation of number of misinformation beliefs with gender 
+## Hypothesis
+It was hypothesised that number of misinformation beliefs would be associated with gender.
+
+## Methedology 
+Welch's t-test was used to compare mean numbers of misinformation beliefs for respondents identifying as male and respondent identifying as female. The small minorities respondents identifying in another way were excluded from this analysis. 
 
 ```{r}
 misinfo_d %>%
@@ -26,5 +34,67 @@ misinfo_d %>%
 misinfo_d %>%
   ggplot(aes(x = beliefs)) +
   geom_histogram(bins = 6)
+# After running the t-test, P-value if there was no difference in the population misinformation, then 20% just due to random sampling, you will get a difference 20% big 
 
 ```
+```{r}
+mean(misinfo_d$beliefs)
+```
+```{r}
+misinfo_d %>%
+  filter(gender %in% c('Male', 'Female')) %>%
+  t.test(formula = beliefs ~ gender, data =.)
+```
+In this sample, males had more misinformation beliefs (M = 0.73) than females (M = 0.61), but this was not statistically significant, t(494.31) = -1.201, p = 0.230.
+## Assosciation of number of misinformation beliefs with age 
+### Hypothesis
+It was Hypothesized that number of misinformation beliefs would be positivley associated with age
+
+### Methedology
+The product-moment (or Pearson) coefficient of correlation between number of misinformation beliefs and age was calculated.
+
+### Findings
+```{r}
+misinfo_d %>%
+  ggplot(aes(x= age, y = beliefs)) +
+  geom_jitter()
+```
+```{r}
+misinfo_d %>%
+  cor.test(
+    formula = ~beliefs + age,
+    data = .,
+    method = 'pearson'
+  )
+# Low p-value means that if there was no relationship between age and the number of misinformation beliefs, then the chance of getting a sample
+
+```
+There was a statistically significant moderate negative correlation between the number of misinformation beliefs and age, r(498) = -24, p < .001. This appears to be accounted for by the very small number of older people with high numbers of misinformation beliefs. Across all ages, the bulk of respondents had few or none, but the respondents with high numbers of misinformation beliefs were almost all relatively young.
+
+## Assosciation of number of misinformation beliefs with amount of knowledge gathered from facebook 
+### Hypothesis
+It was hypothesized that there would be a positive correlation between the number of misinformation beliefs and amount of knowledge gathered from facebook.
+
+### Methedology
+The rank-order (or spearman) coefficient of correlation between number of misinformation beliefs and the amount of knwoeldge gathered from facebook was calculated.
+```{r}
+misinfo_d$know_facebook %>% unique() # To get all the unique variables in a column
+
+misinfo_d = misinfo_d %>% # We assign it to the same dataframe so we can work with the changes we added 
+  mutate( #is used to either change an existing column or create a new column
+    know_facebook_coded = know_facebook %>%
+      recode(
+        "Nothing at all" = 0,
+        "Not very much" = 1,
+        "A fair amount" = 2,
+        "A great deal" = 3
+      )
+  )
+misinfo_d %>%
+  cor.test(
+    formula = ~ beliefs + know_facebook_coded,
+    data = .,
+    method = 'spearman'
+  )#use heatmap for visulaisation 
+```
+There was a statistically significant moderate positive correlation between the number of misinformation beliefs and amount of knowledge gathered from facebook, rs(498) = .23, p < .001. S stands for Spearman
